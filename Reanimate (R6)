@@ -1,0 +1,151 @@
+local char = game.Players.LocalPlayer.Character; char.Humanoid.Sit = false
+local ded = false
+local fakedead = false
+char.Archivable = true
+char.Animate:Destroy()
+char.Humanoid:ClearAllChildren()
+settings().Physics.AllowSleep = false
+settings().Physics.ThrottleAdjustTime = math.huge-math.huge
+local clone = char:Clone(); clone:WaitForChild("Head").face.Transparency = 1
+clone.Humanoid.DisplayDistanceType = "None"
+clone.Name = "Dead"
+local f = Instance.new("Folder", workspace)
+f.Name = "Clone"
+clone.Parent = f
+local applyingvel = false; local alreadysat = false
+function cframe(part1, part2, breakjoints)
+if breakjoints == true then
+part1:BreakJoints()
+end
+Instance.new("Attachment",part1)
+Instance.new("AlignPosition",part1)
+Instance.new("AlignOrientation",part1)
+Instance.new("Attachment",part2)
+part1.Attachment.Name = part1.Name
+part2.Attachment.Name = part1.Name
+part1.AlignPosition.Attachment0 = part1[part1.Name]
+part1.AlignOrientation.Attachment0 = part1[part1.Name]
+part1.AlignPosition.Attachment1 = part2[part1.Name]
+part1.AlignOrientation.Attachment1 = part2[part1.Name]
+part1.AlignPosition.MaxForce = math.huge -- 999999999
+part1.AlignPosition.ReactionForceEnabled = false
+part1.AlignPosition.Responsiveness = math.huge
+part1.AlignOrientation.Responsiveness = math.huge
+part1.AlignPosition.RigidityEnabled = false
+part1.AlignOrientation.MaxTorque = math.huge
+--[[
+part1.Touched:Connect(function(p)
+    if ded == false then
+    if p:IsA("Seat") and alreadysat == false then
+        alreadysat = true
+        local weld = Instance.new("Weld", p)
+        weld.Name = "SeatWeld"
+        weld.Part0 = p
+        weld.Part1 = clone.HumanoidRootPart
+        weld.C1 = CFrame.new(0, p.CFrame.Y - 4.1, 0, 1, 0, -0, 0, 0, 1, 0, -1, 0)
+        weld.C0 = CFrame.new(0, 0, 0, 1, 0, -0, 0, 0, 1, 0, -1, 0)
+        clone.Humanoid.Sit = true
+        char.Humanoid.Sit = true
+        clone.Humanoid.Jumping:Connect(function()
+            if alreadysat == true then
+            weld:Destroy()
+            clone.Humanoid.Sit = false
+            char.Humanoid.Sit = false
+            wait(0.5)
+            alreadysat = false
+            end
+        end)
+    end
+    end
+end)
+]]
+game.RunService.Heartbeat:Connect(function()
+    if ded == false and _G.fling == false then
+        part1.Velocity = _G.Vel
+    end
+end)
+game.RunService.Heartbeat:Connect(function()
+    if ded == false and _G.invis == false then
+    part1.CFrame = part2.CFrame
+    if _G.fling == true and ded == false then
+    part1.Velocity = _G.FlingVel --  Vector3.new(0, 9000000, 0)
+    end
+    elseif _G.invis == true then
+        part1.CFrame = part2.CFrame + Vector3.new(-1000000, 1000000, 1000000)
+    end
+end)
+end
+for _,v in pairs(clone:GetDescendants()) do
+    if v:IsA("BasePart") or v:IsA("Part") or v:IsA("MeshPart") then
+    v.Transparency = 1
+            game.RunService.Stepped:Connect(function()
+            if _G.invis == true and fakedead == false then
+                v.Transparency = 0.5
+                else
+                v.Transparency = 1
+            end
+        end)
+    end
+end
+game.RunService.Heartbeat:Connect(function()
+	if fakedead == true and clone:WaitForChild("Head") ~= nil and clone:WaitForChild("Torso") ~= nil then
+		clone:WaitForChild("Head").Transparency = 0
+		clone:WaitForChild("Torso").Transparency = 0
+		clone:WaitForChild("Head").face.Transparency = 0
+	end
+end)
+for _,v in pairs(char:GetChildren()) do
+    if v:IsA("Part") or v:IsA("BasePart") or v:IsA("MeshPart") then
+    game.RunService.Stepped:Connect(function()
+        if ded == true then
+        v.CanCollide = true
+        else
+        v.CanCollide = false
+        end
+    end)
+    end
+end
+for _,v in pairs(char:GetChildren()) do
+    if v:IsA("Part") and v.Name ~= "HumanoidRootPart" and not v.Name:find("Torso") and v.Name ~= "Head" then
+        cframe(v, clone:FindFirstChild(v.Name), true)
+    elseif v.Name == "HumanoidRootPart"  then
+        cframe(v, clone:WaitForChild("Torso"), false)
+    end
+    spawn(function()
+        while wait() do
+            if v:IsA("Accessory") and _G.UnattachedHats == true then
+                cframe(v.Handle, clone:FindFirstChild(v.Name).Handle, true) 
+            end
+        end
+    end)
+end
+char.Humanoid.Changed:Connect(function()
+	if char.Humanoid.Health == 0 then
+		_G.UnattachedHats = true
+		fakedead = true
+		char:WaitForChild("Head"):Destroy()
+		char:WaitForChild("Torso"):Destroy()
+	end
+end)
+clone.Humanoid.Died:Connect(function()
+    clone:ClearAllChildren()
+    clone:Destroy()
+	f:Destroy()
+    game.Players.LocalPlayer.Character = char; workspace.CurrentCamera.CameraSubject = char
+	char:BreakJoints()
+    ded = true
+end)
+game.RunService.Stepped:Connect(function()
+    if _G.Noclip == true and clone:WaitForChild("Head") ~= nil and clone:WaitForChild("Torso") ~= nil and clone["Left Leg"] ~= nil and clone["Right Leg"] ~= nil then
+    clone:WaitForChild("Head").CanCollide = false
+    clone:WaitForChild("Torso").CanCollide = false
+    clone:WaitForChild("Left Leg").CanCollide = false
+    clone:WaitForChild("Right Leg").CanCollide = false
+    end
+end)
+game.Players.LocalPlayer.Character = clone
+workspace.CurrentCamera.CameraSubject = clone
+spawn(function()
+loadstring(game:HttpGet("https://pastebin.com/raw/rciiRdJj"))()
+loadanim(clone)
+end)
