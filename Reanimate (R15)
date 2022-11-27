@@ -1,0 +1,118 @@
+local char = game.Players.LocalPlayer.Character; char.Humanoid.Sit = false; local folder = Instance.new("Folder", char); folder.Name = "herald"
+for _, v in pairs(char.Humanoid:GetPlayingAnimationTracks()) do
+    v:Stop()
+end
+settings().Physics.AllowSleep = false
+wait(.2)
+local ded = false
+local fakedead = false
+char.Archivable = true
+char.Animate:Destroy()
+char.Humanoid:ClearAllChildren()
+local clone = game:GetObjects("rbxassetid://7047518197")[1]; clone.Head.face.Transparency = 1
+clone.Parent = folder
+clone.Animate:Destroy()
+clone.Humanoid:ClearAllChildren()
+clone.HumanoidRootPart.CFrame = char.HumanoidRootPart.CFrame
+local alreadysat = false
+function cframe(part1, part2, breakjoints, offset)
+if breakjoints == true then
+part1:BreakJoints()
+end
+alignOr = Instance.new("AlignOrientation",char["HumanoidRootPart"])
+alignPosition = Instance.new("AlignPosition",char["HumanoidRootPart"])
+a02 = Instance.new("Attachment",part1)
+a12 = Instance.new("Attachment",part2)
+a12.Name = "brfrik"
+a02.Name = "cinnamon bruh"
+alignPosition.Attachment0 = a02
+alignPosition.Attachment1 = a12
+alignPosition.Responsiveness = math.huge
+alignPosition.RigidityEnabled = true
+alignPosition.MaxForce = math.huge
+alignOr.Attachment0 = a02
+alignOr.Attachment1 = a12
+alignOr.Responsiveness = math.huge
+alignOr.MaxTorque = math.huge
+alignOr.RigidityEnabled = true
+a02.Position = offset
+game.RunService.Heartbeat:Connect(function()
+    if ded == false and _G.fling == false then
+    part1.Velocity = _G.Vel
+    end
+end)
+part2.Transparency = 1
+clone.Head.Transparency = 1
+game.RunService.Heartbeat:Connect(function()
+        if _G.fling == true and ded == false then
+part1.Velocity = Vector3.new(-7999, 0, 0)
+end
+end)
+end
+for _,v in pairs(char:GetChildren()) do
+    if v:IsA("Part") or v:IsA("BasePart") or v:IsA("MeshPart") then
+    game.RunService.Stepped:Connect(function()
+        if ded == true then
+        v.CanCollide = true
+        else
+        v.CanCollide = false
+        end
+    end)
+    end
+end
+for _,v in pairs(clone:GetDescendants()) do
+    if v:IsA("Part") or v:IsA("BasePart") or v:IsA("MeshPart") then
+    game.RunService.Stepped:Connect(function()
+        if _G.Noclip == true then
+        v.CanCollide = false
+        end
+    end)
+    end
+end
+cframe(char["HumanoidRootPart"], clone.Torso, false, Vector3.new(0, 0, 0))
+
+cframe(char["LowerTorso"], clone["Torso"], false, Vector3.new(0, .8, 0))
+
+cframe(char["LeftUpperArm"], clone["Left Arm"], true, Vector3.new(0, -.5, 0))
+cframe(char["LeftLowerArm"], clone["Left Arm"], true, Vector3.new(0, .1, 0))
+cframe(char["LeftHand"], clone["Left Arm"], true, Vector3.new(0, .7, 0))
+
+cframe(char["RightUpperArm"], clone["Right Arm"], true, Vector3.new(0, -.5, 0))
+cframe(char["RightLowerArm"], clone["Right Arm"], true, Vector3.new(0, .1, 0))
+cframe(char["RightHand"], clone["Right Arm"], true, Vector3.new(0, .7, 0))
+
+cframe(char["LeftUpperLeg"], clone["Left Leg"], true, Vector3.new(0, -.5, 0))
+cframe(char["LeftLowerLeg"], clone["Left Leg"], true, Vector3.new(0, .2, 0))
+cframe(char["LeftFoot"], clone["Left Leg"], true, Vector3.new(0, .9, 0))
+
+cframe(char["RightUpperLeg"], clone["Right Leg"], true, Vector3.new(0, -.5, 0))
+cframe(char["RightLowerLeg"], clone["Right Leg"], true, Vector3.new(0, .2, 0))
+cframe(char["RightFoot"], clone["Right Leg"], true, Vector3.new(0, .9, 0))
+game.RunService.Heartbeat:Connect(function()
+	if fakedead == true and clone:FindFirstChild("Head") ~= nil and clone:FindFirstChild("Torso") ~= nil then
+		clone:WaitForChild("Head").Transparency = 0.3
+		clone:FindFirstChild("Lower Torso").Transparency = 0.3
+		clone:FindFirstChild("Upper Torso").Transparency = 0.3
+		clone:WaitForChild("Head").face.Transparency = 0.3
+	end
+end)
+char.Humanoid.Changed:Connect(function()
+	if char.Humanoid.Health == 0 then
+		fakedead = true
+		char:FindFirstChild("Head"):Destroy()
+		char:FindFirstChild("Upper Torso"):Destroy()
+		char:FindFirstChild("Lower Torso"):Destroy()
+	end
+end)
+clone.Humanoid.Died:Connect(function()
+    clone:Destroy()
+    game.Players.LocalPlayer.Character = char; workspace.CurrentCamera.CameraSubject = char
+    char:BreakJoints()
+    ded = true
+    applyingvel = false
+end)
+game.Players.LocalPlayer.Character = clone; workspace.CurrentCamera.CameraSubject = clone
+spawn(function()
+loadstring(game:HttpGet("https://pastebin.com/raw/rciiRdJj"))()
+loadanim(clone)
+end)
